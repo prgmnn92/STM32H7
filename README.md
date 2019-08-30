@@ -18,9 +18,9 @@ How to test it?
 Pay attention to the code lines below. It will help you to understand how to configure **H7** for the correct **Ethernet/LwIP** work.
 
 [STM32H743ZITx_FLASH.ld](/STM32H743ZITx_FLASH.ld):
-- [#L35-L39](/STM32H743ZITx_FLASH.ld#L35-L39) : stack/heap size
-- [#L134](/STM32H743ZITx_FLASH.ld#L134), [#L151](/STM32H743ZITx_FLASH.ld#L151), [#L162](/STM32H743ZITx_FLASH.ld#L162) : data/bss/heap location
-- [#L166-L175](/STM32H743ZITx_FLASH.ld#L166-L175) : LwIP Rx/Tx data location
+- [#L35-L39](/STM32H743ZITx_FLASH.ld#L35-L39) : we need more RAM for the stack/heap when using LwIP
+- [#L134](/STM32H743ZITx_FLASH.ld#L134), [#L151](/STM32H743ZITx_FLASH.ld#L151), [#L162](/STM32H743ZITx_FLASH.ld#L162) : we need to use a public RAM domain (for example, D1) when using Ethernet
+- [#L166-L175](/STM32H743ZITx_FLASH.ld#L166-L175) : we need to store LwIP Rx/Tx buffers in the public RAM domain (for example, D2)
 
 [main.c](/Src/main.c):
 - [#L133-L141](/Src/main.c#L133-L141) : HAL_Delay() & MX_LWIP_Process() usage
