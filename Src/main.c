@@ -96,6 +96,41 @@ static void MX_GPIO_Init(void);
 /* USER CODE BEGIN 0 */
 struct pbuf *p;
 
+const static char UDPData[]="Hello World!\r\n";
+
+void  Delay1(unsigned long  ulVal)
+{
+    while ( --ulVal  !=  0 );
+}
+
+
+void udpd_Send(void)
+{
+	struct udp_pcb *UdpPcb;
+	ip4_addr_t ipaddr;
+  struct pbuf *p;
+	err_t err;
+
+	p = pbuf_alloc(PBUF_RAW,sizeof(UDPData),PBUF_RAM);
+  p->payload=(void *)UDPData;
+
+	UdpPcb = udp_new();
+	udp_bind(UdpPcb,IP_ADDR_ANY,6000);
+  IP4_ADDR(&ipaddr,172,20,172,20);
+
+  //err = udp_connect(UdpPcb,&ipaddr,6001);
+
+	if(err == ERR_OK)
+	{
+//		err = ERR_Mine;
+		err = udp_send(UdpPcb, p);
+	}
+
+	udp_disconnect(UdpPcb);
+	pbuf_free(p);
+	udp_remove(UdpPcb);
+}
+
 
 
 
@@ -156,23 +191,26 @@ int main(void)
 ////
 //  udp_bind(upcb_server,IP_ADDR_ANY,3000);
 
-	IP4_ADDR(&pc_ipaddr, 172, 20, 172, 20);
+  HAL_Delay(50);
 
-	unsigned char buffer[1200] = "my name is xxxxxxx";
-	struct udp_pcb *pcb;
-	err_t err;
-	unsigned port = 7;
-	unsigned pc_port = 8080;
+
+//	IP4_ADDR(&pc_ipaddr, 172, 20, 172, 20);
+//
+//	unsigned char buffer[1200] = "my name is xxxxxxx";
+//	struct udp_pcb *pcb;
+//	err_t err;
+//	unsigned port = 7;
+//	unsigned pc_port = 8080;
 
 	/* create new UDP PCB structure */
-	pcb = udp_new();
-	err = udp_bind(pcb, IP_ADDR_ANY, port);
-	err= udp_connect(pcb, &pc_ipaddr, pc_port);
-
-	p = pbuf_alloc(PBUF_TRANSPORT,4096,PBUF_RAM);
-	p->payload = buffer;
-
-	udp_send(pcb,p->payload);
+//	pcb = udp_new();
+//	err = udp_bind(pcb, IP_ADDR_ANY, port);
+	//err= udp_connect(pcb, &pc_ipaddr, pc_port);
+//
+//	p = pbuf_alloc(PBUF_TRANSPORT,4096,PBUF_RAM);
+//	p->payload = buffer;
+//
+//
 
   /* USER CODE END 2 */
 
@@ -181,7 +219,10 @@ int main(void)
   while (1)
   {
 //
-	  HAL_Delay(1000);
+	 // HAL_Delay(1000);
+//
+//	  udp_send(pcb,p->payload);
+
 //
 //
 //
@@ -193,9 +234,10 @@ int main(void)
 //
 //
 	  //udp_send(upcb_server, p);
-
-	 // MX_LWIP_Process();
-	//  HAL_Delay(1);
+	  udpd_Send();
+	  HAL_Delay(5);
+	  MX_LWIP_Process();
+	  HAL_Delay(5);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -323,6 +365,8 @@ void MPU_Config(void)
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 
 }
+
+
 
 /**
   * @brief  This function is executed in case of error occurrence.

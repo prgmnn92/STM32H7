@@ -57,6 +57,8 @@
 
 /* USER CODE BEGIN 0 */
 
+#include "lwip/udp.h"
+
 /* USER CODE END 0 */
 /* Private function prototypes -----------------------------------------------*/
 /* ETH Variables initialization ----------------------------------------------*/
@@ -67,6 +69,7 @@ void Error_Handler(void);
 /* USER CODE END 1 */
 
 /* Variables Initialization */
+static struct udp_pcb* upcb;
 struct netif gnetif;
 ip4_addr_t ipaddr;
 ip4_addr_t netmask;
@@ -77,6 +80,104 @@ uint8_t NETMASK_ADDRESS[4];
 uint8_t GATEWAY_ADDRESS[4];
 
 /* USER CODE BEGIN 2 */
+
+void udp_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, u16_t port){
+
+	//struct pbuf *p;
+	uint8_t data[100]={0};
+      sprintf((char*)data, "sending udp client message" );
+      /* allocate pbuf from pool*/
+      p = pbuf_alloc(PBUF_TRANSPORT,strlen((char*)data), PBUF_POOL);
+      if (p != NULL)
+      {
+        /* copy data to pbuf */
+        pbuf_take(p, (char*)data, strlen((char*)data));
+
+        /* send udp data */
+        udp_send(upcb, p);
+
+        /* free pbuf */
+        pbuf_free(p);
+      }
+}
+
+err_t create_udp_socket(){
+    err_t err = ERR_OK;
+    ip4_addr_t destIPAddr;
+    upcb = udp_new();
+
+    if (upcb == NULL){
+        return ERR_MEM;
+    }
+    // Load the static IP of the destination address
+    //169.254.157.160:
+
+    // Tx_buf[30] = 192; // destination IP
+//    Tx_buf[31] = 168;
+//    Tx_buf[32] = 1;
+//    Tx_buf[33] = 49;
+
+
+    IP4_ADDR(&destIPAddr,192,168,1,49);
+    upcb->local_port = 5001;
+    //upcb->local_port = 4004; // Set our local port to 4004
+    // Should bind to the local ip and port
+    err = udp_bind(upcb,IP4_ADDR_ANY,5004);
+    if (err != ERR_OK){
+        return err;
+    }
+    // Connect to the other port
+    err = udp_connect(upcb,&destIPAddr,5001);
+    if (err != ERR_OK){
+        return err;
+    }
+    // Set the receive function
+    udp_recv(upcb,udp_receive_callback,NULL);
+    return err;
+}
+
+err_t send_msg_to_dest(){
+    struct pbuf *p;
+	uint8_t data[100]={0};
+
+
+/*
+	data[0] = 'M';
+	data[1] = 'O';
+	data[2] = '=';
+	data[3] = '1';
+	data[4] = 0xD;
+*/
+
+	  data[0] = 'T';
+	  data[1] = 'C';
+	  data[2] = '=';
+	  data[3] = '0';
+	  data[4] = 0xD;
+
+
+    //sprintf((char*)data, "sending udp client message");
+
+    /* allocate pbuf from pool*/
+    //p = pbuf_alloc(PBUF_TRANSPORT,strlen((char*)data), PBUF_POOL);
+	p = pbuf_alloc(PBUF_TRANSPORT,5, PBUF_POOL);
+
+
+    if (p != NULL)
+    {
+        /* copy data to pbuf */
+        pbuf_take(p, (char*)data, strlen((char*)data));
+
+        /* send udp data */
+        udp_send(upcb, p);
+
+        /* free pbuf */
+        pbuf_free(p);
+        return ERR_OK;
+    }
+    return ERR_MEM;
+}
+
 
 /* USER CODE END 2 */
 
@@ -150,15 +251,19 @@ void MX_LWIP_Init(void)
 void MX_LWIP_Process(void)
 {
 /* USER CODE BEGIN 4_1 */
+ // ethernetif_set_link(&gnetif);
 /* USER CODE END 4_1 */
   ethernetif_input(&gnetif);
   
 /* USER CODE BEGIN 4_2 */
+//  send_msg_to_dest();
+//  printf("\rsend message\n");
 /* USER CODE END 4_2 */  
   /* Handle timeouts */
   sys_check_timeouts();
 
 /* USER CODE BEGIN 4_3 */
+
 /* USER CODE END 4_3 */
 }
 
