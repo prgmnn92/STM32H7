@@ -51,6 +51,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "lwip.h"
+#include "udp.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -76,6 +77,11 @@
 
 /* USER CODE BEGIN PV */
 
+//extern struct netif gnetif;
+struct udp_pcb *upcb_server;
+
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,6 +94,11 @@ static void MX_GPIO_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+struct pbuf *p;
+
+
+
+
 
 /* USER CODE END 0 */
 
@@ -98,6 +109,7 @@ static void MX_GPIO_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	ip4_addr_t pc_ipaddr;
 
   /* USER CODE END 1 */
 
@@ -130,15 +142,60 @@ int main(void)
   MX_GPIO_Init();
   MX_LWIP_Init();
   /* USER CODE BEGIN 2 */
-  HAL_Delay(1000);
+//  upcb_server = udp_new();
+//
+//  uint8_t msg[] = "Hello World";
+//
+//  err_t err;
+////
+////  netif_set_gw()
+////
+//  p->len = sizeof(msg);
+//   p->payload = msg;
+////
+////
+//  udp_bind(upcb_server,IP_ADDR_ANY,3000);
+
+	IP4_ADDR(&pc_ipaddr, 172, 20, 172, 20);
+
+	unsigned char buffer[1200] = "my name is xxxxxxx";
+	struct udp_pcb *pcb;
+	err_t err;
+	unsigned port = 7;
+	unsigned pc_port = 8080;
+
+	/* create new UDP PCB structure */
+	pcb = udp_new();
+	err = udp_bind(pcb, IP_ADDR_ANY, port);
+	err= udp_connect(pcb, &pc_ipaddr, pc_port);
+
+	p = pbuf_alloc(PBUF_TRANSPORT,4096,PBUF_RAM);
+	p->payload = buffer;
+
+	udp_send(pcb,p->payload);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    MX_LWIP_Process();
-    HAL_Delay(1);
+//
+	  HAL_Delay(1000);
+//
+//
+//
+//	  err=udp_send(upcb_server,p);
+//
+//	  //udp_disconnect(upcb_server);
+//	  ethernetif_input(&gnetif);
+//	  sys_check_timeouts();
+//
+//
+	  //udp_send(upcb_server, p);
+
+	 // MX_LWIP_Process();
+	//  HAL_Delay(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

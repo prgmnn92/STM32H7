@@ -71,6 +71,7 @@ struct netif gnetif;
 ip4_addr_t ipaddr;
 ip4_addr_t netmask;
 ip4_addr_t gw;
+
 uint8_t IP_ADDRESS[4];
 uint8_t NETMASK_ADDRESS[4];
 uint8_t GATEWAY_ADDRESS[4];
@@ -85,17 +86,17 @@ uint8_t GATEWAY_ADDRESS[4];
 void MX_LWIP_Init(void)
 {
   /* IP addresses initialization */
-  IP_ADDRESS[0] = 192;
-  IP_ADDRESS[1] = 168;
-  IP_ADDRESS[2] = 1;
-  IP_ADDRESS[3] = 100;
+  IP_ADDRESS[0] = 172;
+  IP_ADDRESS[1] = 20;
+  IP_ADDRESS[2] = 172;
+  IP_ADDRESS[3] = 61;
   NETMASK_ADDRESS[0] = 255;
   NETMASK_ADDRESS[1] = 255;
   NETMASK_ADDRESS[2] = 255;
   NETMASK_ADDRESS[3] = 0;
-  GATEWAY_ADDRESS[0] = 192;
-  GATEWAY_ADDRESS[1] = 168;
-  GATEWAY_ADDRESS[2] = 1;
+  GATEWAY_ADDRESS[0] = 172;
+  GATEWAY_ADDRESS[1] = 20;
+  GATEWAY_ADDRESS[2] = 172;
   GATEWAY_ADDRESS[3] = 1;
   
   /* Initilialize the LwIP stack without RTOS */
